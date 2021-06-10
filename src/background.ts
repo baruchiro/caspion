@@ -1,11 +1,12 @@
 import { app, BrowserWindow } from 'electron';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
-import { autoUpdater } from "electron-updater";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import logger from './logging/logger';
 import Sentry from './logging/sentry';
 // import './store';
+
+const autoUpdater = require('electron-updater').autoUpdate
 
 Sentry.initializeReporter();
 
