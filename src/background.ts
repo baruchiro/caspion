@@ -1,5 +1,6 @@
 import { app, BrowserWindow } from 'electron';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
+import { autoUpdater } from "electron-updater";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import logger from './logging/logger';
@@ -7,6 +8,8 @@ import Sentry from './logging/sentry';
 // import './store';
 
 Sentry.initializeReporter();
+
+autoUpdater.logger = logger
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -37,6 +40,7 @@ function createWindow() {
     createProtocol('app');
     // Load the index.html when not in development
     loadURL('app://./index.html');
+    autoUpdater.checkForUpdatesAndNotify();
   }
   mainWindow.on('closed', () => {
     mainWindow = null;
