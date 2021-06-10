@@ -1,6 +1,6 @@
 {
   "name": "hiuvi",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "Jonathan Goldfarb <brafdlog@gmail.com>",
   "description": "An electron app for automating expense tracking",
   "license": "MIT",
@@ -94,7 +94,6 @@
     "eslint-plugin-promise": "^4.3.1",
     "eslint-plugin-standard": "^5.0.0",
     "eslint-plugin-vue": "^7.8.0",
-    "husky": "^4.2.5",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^26.4.2",
     "jest-circus": "^26.4.2",
