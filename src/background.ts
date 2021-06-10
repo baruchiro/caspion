@@ -6,7 +6,6 @@ import logger from './logging/logger';
 import Sentry from './logging/sentry';
 // import './store';
 
-
 const autoUpdater = require('electron-updater').autoUpdater; // eslint-disable-line
 
 Sentry.initializeReporter();
