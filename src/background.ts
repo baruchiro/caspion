@@ -6,11 +6,7 @@ import logger from './logging/logger';
 import Sentry from './logging/sentry';
 // import './store';
 
-const autoUpdater = require('electron-updater').autoUpdater; // eslint-disable-line
-
 Sentry.initializeReporter();
-
-autoUpdater.logger = logger;
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -41,7 +37,6 @@ function createWindow() {
     createProtocol('app');
     // Load the index.html when not in development
     loadURL('app://./index.html');
-    autoUpdater.checkForUpdatesAndNotify();
   }
   mainWindow.on('closed', () => {
     mainWindow = null;
