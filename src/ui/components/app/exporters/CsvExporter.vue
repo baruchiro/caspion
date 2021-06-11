@@ -14,7 +14,8 @@
       label="CSV file"
       outlined
       :rules="rules"
-      @change="changed = true"
+      readonly
+      @click="click()"
     />
     <v-btn
       color="primary"
@@ -27,23 +28,57 @@
 </template>
 
 <script lang="ts">
-import { setupExporterConfigForm } from '@/ui/components/app/exporters/exportersCommon';
 import { OutputVendorName } from '@/backend/commonTypes';
 import { legalPath, required } from '@/ui/components/shared/formValidations';
-import { defineComponent } from '@vue/composition-api';
+import {
+  defineComponent, computed, reactive, ref
+} from '@vue/composition-api';
+import store from '@/ui/store';
+import { VForm } from '@/types/vuetify';
+
+import { cloneDeep } from 'lodash';
+import { SelectDirHandler } from '@/handlers/select-dir';
+
+function createSetupConfigForm() {
+  const vForm = ref<VForm>();
+
+  const exporter = reactive(cloneDeep(store.getters.Config.getExporter(OutputVendorName.CSV)));
+  const validated = ref(true);
+  const changed = ref(false);
+  const readyToSave = computed(() => validated.value && changed.value);
+
+  const submit = async () => {
+    if (vForm.value?.validate()) {
+      await store.dispatch.Config.updateExporter({ name: OutputVendorName.CSV, exporter });
+      changed.value = false;
+    }
+  };
+
+  const click = async () => {
+    const filePath = await SelectDirHandler.invoke();
+    if (filePath) {
+      exporter.options.filePath = filePath;
+      changed.value = true;
+    }
+  };
+
+  return {
+    validated, changed, readyToSave, submit, exporter, vForm, click
+  };
+}
 
 export default defineComponent({
   name: 'CsvExporter',
 
   setup() {
     return {
-      ...setupExporterConfigForm(OutputVendorName.CSV),
+      ...createSetupConfigForm(),
       rules: [
         required,
         legalPath
       ]
     };
-  }
+  },
 });
 
 </script>
