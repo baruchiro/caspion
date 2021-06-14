@@ -1,6 +1,7 @@
 import logger from './logging/logger';
 
-const autoUpdater = require('electron-updater').autoUpdater; // eslint-disable-line
+const isRenderer = (process && process.type === 'renderer');
+const autoUpdater = isRenderer? {} : require('electron-updater').autoUpdater; // eslint-disable-line
 
 autoUpdater.logger = logger;
 autoUpdater.autoDownload = false;

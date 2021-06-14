@@ -1,19 +1,70 @@
 <template>
-  <v-progress-linear v-if="state === STATES.LOADING" :indeterminate="true" />
-  <v-btn v-else-if="state === STATES.INIT" text small @click="checkUpdates">
+  <div
+    v-if="state === STATES.LOADING"
+    class="progress"
+  >
+    <v-progress-linear
+      :indeterminate="true"
+      class="mr-2"
+      color="black lighten-2"
+    />
+  </div>
+  <v-btn
+    v-else-if="state === STATES.INIT"
+    text
+    small
+    @click="checkUpdates"
+  >
     <span class="mr-2">Check for updates</span>
-    <v-icon>mdi-open-in-new</v-icon>
   </v-btn>
-  <div v-else>{{ state }}</div>
+  <div v-else-if="state === STATES.NO_NEW_VERSION">
+    No News
+  </div>
+  <div v-else-if="state === STATES.NEW_VERSION_AVAIL">
+    <v-btn
+      text
+      small
+      @click="downloadNewVersion"
+    >
+      Download version {{ updateInfo.version }}
+    </v-btn>
+    <v-btn
+      text
+      small
+      @click="openGithubRelease"
+    >
+      Github
+      <v-icon>mdi-open-in-new</v-icon>
+    </v-btn>
+    <v-btn
+      text
+      small
+      @click="openCompare"
+    >
+      Compare
+      <v-icon>mdi-open-in-new</v-icon>
+    </v-btn>
+  </div>
+  <v-btn
+    v-else-if="state === STATES.READY_TO_INSTALL"
+    text
+    small
+    @click="quitAndInstall"
+  >
+    Quit and install
+  </v-btn>
+  <div v-else>
+    Error during update
+  </div>
 </template>
 
 <script lang="ts">
-import { VForm } from "@/types/vuetify";
-import { required, positive } from "@/ui/components/shared/formValidations";
-import store from "@/ui/store";
-import { defineComponent, ref, computed } from "@vue/composition-api";
-import { GlobalConfig } from "@/ui/store/modules/config";
-import { checkForUpdate, downloadUpdate, quitAndInstall } from "@/updater";
+import { defineComponent, ref } from '@vue/composition-api';
+import { checkForUpdateHandler, downloadUpdateHandler, quitAndInstallHandler } from '@/handlers';
+import logger from '@/logging/logger';
+import { App } from '@/app-globals';
+import { shell } from 'electron';
+import { repository } from '../../../../package.json';
 
 enum STATES {
   INIT,
@@ -24,15 +75,20 @@ enum STATES {
   READY_TO_INSTALL,
 }
 
+const currentVersion = App.getVersion();
+
 export default defineComponent({
   setup() {
     const state = ref(STATES.INIT);
+    const updateInfo = ref({ version: '0.0.6' });
 
     const checkUpdates = async () => {
       state.value = STATES.LOADING;
-      checkForUpdate()
-        .then((isUpdate) => {
-          state.value = isUpdate
+      checkForUpdateHandler.invoke()
+        .then((info) => {
+          logger.info({ info });
+          updateInfo.value = info;
+          state.value = info
             ? STATES.NEW_VERSION_AVAIL
             : STATES.NO_NEW_VERSION;
         })
@@ -40,15 +96,35 @@ export default defineComponent({
     };
     const downloadNewVersion = async () => {
       state.value = STATES.LOADING;
-      downloadUpdate()
+      downloadUpdateHandler.invoke()
         .then(() => (state.value = STATES.READY_TO_INSTALL))
         .catch(() => (state.value = STATES.ERROR));
     };
+    const quitAndInstall = () => quitAndInstallHandler.invoke();
+    const openGithubRelease = () => {
+      shell.openExternal(`${repository}/releases/tag/v${updateInfo.value.version}`);
+    };
+    const openCompare = () => {
+      shell.openExternal(`${repository}/compare/v${currentVersion}...v${updateInfo.value.version}`);
+    };
 
-    return { STATES, state, checkUpdates, downloadNewVersion, quitAndInstall };
+    return {
+      STATES,
+      state,
+      updateInfo,
+      currentVersion,
+      checkUpdates,
+      downloadNewVersion,
+      quitAndInstall,
+      openGithubRelease,
+      openCompare
+    };
   },
 });
 </script>
 
 <style scoped>
+.progress {
+  min-width: 10vw;
+}
 </style>
