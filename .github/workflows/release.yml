@@ -17,12 +17,18 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: Set version in Env
-      shell: bash
-      run: |
-        package_version=`awk -F ':' '/version/ {print $2}' package.json | sed 's/\"//g' | sed 's/,//g' | sed 's/ //g'`
-        echo "package_version=$package_version" >> $GITHUB_ENV
-        echo "Version is $package_version"
+    - name: Release to Github
+      uses: cycjimmy/semantic-release-action@v2
+      id: semantic   # Need an `id` for output variables
+      with:
+        semantic_version: 16.0.2
+        branches: |
+          [
+            '+([0-9])?(.{+([0-9]),x}).x',
+            'master'
+          ]
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - uses: actions/github-script@0.3.0
       name: Check if current version is a published release (by release tag)
       id: check_release
