@@ -6,8 +6,8 @@ FROM mcr.microsoft.com/vscode/devcontainers/javascript-node:0-${VARIANT}
 
 # [Optional] Uncomment this section to install additional OS packages.
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt -y install libsecret-1-dev libnss3 libgdk-pixbuf2.0-0 libgtk-3-0 libx11-xcb1 libxss1 libasound2 \
-    && apt -y install gnome-keyring
+    && apt-get -y install libsecret-1-dev libnss3 libgdk-pixbuf2.0-0 libgtk-3-0 libx11-xcb1 libxss1 libasound2 \
+    && apt-get -y install gnome-keyring
 
 # [Optional] Uncomment if you want to install an additional version of node using nvm
 # ARG EXTRA_NODE_VERSION=10
